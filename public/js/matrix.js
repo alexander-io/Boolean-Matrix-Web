@@ -24,9 +24,9 @@ let draw_matrix = function(matrix_array) {
     for (let j = 0; j < matrix_array[0].length;j++){
       let block = document.createElement('div');
       block.style.display = 'inline-block'
-      block.style.width = (window_width / matrix_array.length) - 2 + 'px'
+      block.style.width = (window_width / matrix_array.length) - 1 + 'px'
       block.style.height = window_height / matrix_array[0].length + 'px'
-      matrix_array[i][j] == false ? block.style.backgroundColor = '#212121': block.style.backgroundColor = 'white'
+      matrix_array[i][j] ? block.style.backgroundColor = '#212121': block.style.backgroundColor = 'white'
       mount.appendChild(block)
     }
   }
