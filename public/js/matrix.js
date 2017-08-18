@@ -9,14 +9,11 @@ let init_matrix_array = (array_dimension) => {
   for (let i = 0; i < array_dimension.w; i++) {
     let row = []
     for (let j = 0; j < array_dimension.h; j++) {
-      if (flag) {
-        row[j] = false
-      } else {
-        row[j] = true
-      }
+      flag ? row[j] = false : row[j] = true
       flag = !flag
     }
     matrix_array[i] = row
+    flag = !flag
   }
   return matrix_array
 }
