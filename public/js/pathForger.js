@@ -1,4 +1,4 @@
-var size, maze, start, end, walkways;
+var size, maze, start, end, direction, walkways;
 
 // Space to the right of the given position
 var rightSpace = function (pos) {
@@ -69,6 +69,9 @@ var updateCoordinate = function (pos, value) {
 var buildMaze = function () {
   size = 16; // Size of maze
 
+  // Keep track of the number of walkways vs. number of walls
+  walkways = 0;
+
   // Initialize Maze
   maze = [];
   for (var i = 0; i < size; i++) {
@@ -83,9 +86,12 @@ var buildMaze = function () {
   updateCoordinate(start, true);
   updateCoordinate(end, true);
 
-  walkways = 0;
+  // Direction the path is forging (start --> end == true)
+  direction = false;
 
-  forgePath(start);
+  // Start from the end, forge to the start
+  // This makes different directions through the maze more available towards the front
+  forgePath(end);
 
   // CORNER CASE: sometimes the pathForger does not reach the end
   // So, breakthrough until the end is connected to a path
@@ -163,11 +169,18 @@ var breaksThrough = function (pos) {
   var neighbors = findNeighbors(pos);
   var justOne = false; // Only allowed one walkway neighbor
   for (var i = 0; i < neighbors.length; i++) {
-    // BASE CASE --> We hit the end of the maze
+    // BASE CASE --> We hit the end (or start) of the maze
     // This is the one time we DO want to break through
-    if (neighbors[i].x == end.x && neighbors[i].y == end.y) {
-      return false;
+    if (direction) {
+      if (neighbors[i].x == end.x && neighbors[i].y == end.y) {
+        return false;
+      }
+    } else {
+      if (neighbors[i].x == start.x && neighbors[i].y == start.y) {
+        return false;
+      }
     }
+    
     if (isValidSpot(neighbors[i]) && getCoordinate(neighbors[i])) {
       if (justOne) {
         return true;
