@@ -11,8 +11,8 @@ app.get('/style.css', function(req, res) {
   res.sendFile(path.join(__dirname + '/' + 'public/css/style.css'))
 })
 
-app.get('/matrix.js', function(req, res) {
-  res.sendFile(__dirname + '/' + 'public/js/matrix.js')
+app.get('/pathForger.js', function(req, res) {
+  res.sendFile(__dirname + '/' + 'public/js/pathForger.js')
 })
 
 app.listen(port, function(){
