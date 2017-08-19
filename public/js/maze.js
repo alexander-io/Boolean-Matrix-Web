@@ -10,8 +10,6 @@ var two = new Two({
   fill : 'black'
 }).appendTo(document.getElementById('maze-mount'));
 
-// var rect = two.makeRectangle(0, 0 / 2, 50 ,50);
-
 let col = []
 
 let dimension = {
@@ -20,19 +18,42 @@ let dimension = {
 
 let block_size = (two.width / 16);
 
-let make_matrix_of_rectangles = function(dimension) {
-  let outer = []
-  for (let x = 0; x < dimension.s; x++) {
-    let inner = []
-    for (let xx = 0; xx < dimension.s; xx++) {
-      inner.push(two.makeRectangle( block_size*xx + (block_size/2), block_size*x + (block_size/2), block_size ,block_size))
+// let make_matrix_of_rectangles = function(dimension) {
+//   let outer = []
+//   for (let x = 0; x < dimension.s; x++) {
+//     let inner = []
+//     for (let xx = 0; xx < dimension.s; xx++) {
+//       inner.push(two.makeRectangle( block_size*xx + (block_size/2), block_size*x + (block_size/2), block_size ,block_size))
+//     }
+//     outer.push(inner)
+//   }
+// }
+// make_matrix_of_rectangles(dimension)
+
+let renderMaze = function () {
+  let maze = buildMaze();
+  let displayMaze = [];
+  for (let y = 0; y < maze.length; y++) {
+    let displayRow = [];
+    for (let x = 0; x < maze.length; x++) {
+      let spot = two.makeRectangle( block_size*y + (block_size/2), block_size*x + (block_size/2), block_size ,block_size);
+
+      if (maze[x][y]) {
+        spot.fill = 'rgb(0, 200, 255)';
+      } else {
+        spot.fill = 'rgb(0, 0, 0)';
+      }
+
+      displayRow.push(spot);
     }
-    outer.push(inner)
+    displayMaze.push(displayRow);
   }
-}
+  displayMaze[0][0].fill = 'rgb(111, 111, 111)';
+  displayMaze[maze.length - 1][maze.length - 1].fill = 'rgb(111, 111, 111)';
+};
 
-make_matrix_of_rectangles(dimension)
+renderMaze();
 
-two.bind('update', function() {
-  // rect.rotation += 0.001;
-});
+// two.bind('update', function() {
+//   // rect.rotation += 0.001;
+// });
