@@ -15,6 +15,14 @@ app.get('/pathForger.js', function(req, res) {
   res.sendFile(__dirname + '/' + 'public/js/pathForger.js')
 })
 
+app.get('/two.min.js', function(req, res) {
+  res.sendFile(__dirname + '/' + 'public/js/two.min.js')
+})
+
+app.get('/maze.js', function(req, res) {
+  res.sendFile(__dirname + '/' + 'public/js/maze.js')
+})
+
 app.listen(port, function(){
   console.log('listening to :', port);
 })
