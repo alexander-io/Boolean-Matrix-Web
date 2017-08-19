@@ -28,7 +28,7 @@ var buildMaze = function () {
   size = 16; // Size of maze
 
   // Keep track of the number of walkways vs. number of walls
-  walkways = 0;
+  // walkways = 0;
 
   // Initialize Maze
   maze = [];
@@ -58,7 +58,7 @@ var buildMaze = function () {
     while (true) {
       nextDown = downSpace(nextDown);
       updateCoordinate(nextDown, 1);
-      walkways++;
+      // walkways++;
       if (getCoordinate(rightSpace(nextDown) || getCoordinate(downSpace(nextDown)))) {
         break;
       }
@@ -69,7 +69,6 @@ var buildMaze = function () {
     forgePath(start);
   }
 
-  console.log(walkways / (size*size));
   return maze;
 };
 
@@ -95,31 +94,20 @@ var forgeSpot = function (pos) {
   // If we can go here, and we have not been here...
   if (canMove(pos) && !getCoordinate(pos)) {
     updateCoordinate(pos, 1);
-    walkways++;
+    // walkways++;
     forgePath(pos);
   }
 };
 
 // Determines whether you can move to the given position
 var canMove = function (pos) {
-  if (!isValidSpot(pos)) {
+  if (!isValidSpot(pos, size)) {
     return false;
   }
   if (breaksThrough(pos)) {
     return false;
   }
   if (makesWideHall(pos)) {
-    return false;
-  }
-  return true;
-};
-
-// Is this spot in the maze?
-var isValidSpot = function (pos) {
-  if (pos.x < 0 || pos.x >= size) {
-    return false;
-  }
-  if (pos.y < 0 || pos.y >= size) {
     return false;
   }
   return true;
@@ -143,7 +131,7 @@ var breaksThrough = function (pos) {
       }
     }
 
-    if (isValidSpot(neighbors[i]) && getCoordinate(neighbors[i])) {
+    if (isValidSpot(neighbors[i], size) && getCoordinate(neighbors[i])) {
       if (justOne) {
         return true;
       } else {
@@ -169,25 +157,25 @@ var makesWideHall = function (pos) {
 
   // Check each corner and its adjacent tiles
 
-  if (isValidSpot(l) && isValidSpot(ul) && isValidSpot(u)) {
+  if (isValidSpot(l, size) && isValidSpot(ul, size) && isValidSpot(u, size)) {
     if (getCoordinate(l) && getCoordinate(ul) && getCoordinate(u)) {
       return true;
     }
   }
 
-  if (isValidSpot(u) && isValidSpot(ur) && isValidSpot(r)) {
+  if (isValidSpot(u, size) && isValidSpot(ur, size) && isValidSpot(r, size, size)) {
     if (getCoordinate(u) && getCoordinate(ur) && getCoordinate(r)) {
       return true;
     }
   }
 
-  if (isValidSpot(r) && isValidSpot(rd) && isValidSpot(d)) {
+  if (isValidSpot(r, size) && isValidSpot(rd, size) && isValidSpot(d, size)) {
     if (getCoordinate(r) && getCoordinate(rd) && getCoordinate(d)) {
       return true;
     }
   }
 
-  if (isValidSpot(d) && isValidSpot(dl) && isValidSpot(l)) {
+  if (isValidSpot(d, size) && isValidSpot(dl, size) && isValidSpot(l, size)) {
     if (getCoordinate(d) && getCoordinate(dl) && getCoordinate(l)) {
       return true;
     }

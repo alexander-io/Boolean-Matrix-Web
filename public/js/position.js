@@ -40,6 +40,17 @@ var downSpace = function (pos) {
   }
 };
 
+// Is this spot in the maze?
+var isValidSpot = function (pos, size) {
+  if (pos.x < 0 || pos.x >= size) {
+    return false;
+  }
+  if (pos.y < 0 || pos.y >= size) {
+    return false;
+  }
+  return true;
+};
+
 // Retrieves neighbors (legitimate or not) for given position
 var findNeighbors = function (pos) {
   var potentialSpots = [];
@@ -48,4 +59,9 @@ var findNeighbors = function (pos) {
   potentialSpots.push(leftSpace(pos));
   potentialSpots.push(upSpace(pos));
   return potentialSpots;
+};
+
+// Allows for storage of visited coordinates
+var coordinatesToString = function (pos) {
+  return '{x: ' + pos.x + ', y: ' + pos.y + '}';
 };
