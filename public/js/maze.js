@@ -1,6 +1,4 @@
-// console.log('canary');
 let window_width = window.innerWidth, window_height = window.innerHeight
-// console.log(window_width, window_height)
 
 var two = new Two({
   fullscreen: false,
@@ -18,30 +16,21 @@ let dimension = {
 
 let block_size = (two.width / 16);
 
-// let make_matrix_of_rectangles = function(dimension) {
-//   let outer = []
-//   for (let x = 0; x < dimension.s; x++) {
-//     let inner = []
-//     for (let xx = 0; xx < dimension.s; xx++) {
-//       inner.push(two.makeRectangle( block_size*xx + (block_size/2), block_size*x + (block_size/2), block_size ,block_size))
-//     }
-//     outer.push(inner)
-//   }
-// }
-// make_matrix_of_rectangles(dimension)
-
 let renderMaze = function () {
-  let maze = buildMaze();
+  let maze = solveMaze(buildMaze());
+  // console.log(maze);
   let displayMaze = [];
   for (let y = 0; y < maze.length; y++) {
     let displayRow = [];
     for (let x = 0; x < maze.length; x++) {
       let spot = two.makeRectangle( block_size*y + (block_size/2), block_size*x + (block_size/2), block_size ,block_size);
 
-      if (maze[x][y]) {
-        spot.fill = 'rgb(0, 200, 255)';
-      } else {
+      if (maze[x][y] == 0) { // Wall
         spot.fill = 'rgb(0, 0, 0)';
+      } else if (maze[x][y] == 1) { // Walkway
+        spot.fill = 'rgb(0, 200, 255)';
+      } else if (maze[x][y] == 2) { // Solved path
+        spot.fill = 'rgb(150, 30, 190)';
       }
 
       displayRow.push(spot);

@@ -11,8 +11,16 @@ app.get('/style.css', function(req, res) {
   res.sendFile(path.join(__dirname + '/' + 'public/css/style.css'))
 })
 
+app.get('/position.js', function(req, res) {
+  res.sendFile(__dirname + '/' + 'public/js/position.js')
+})
+
 app.get('/pathForger.js', function(req, res) {
   res.sendFile(__dirname + '/' + 'public/js/pathForger.js')
+})
+
+app.get('/pathFinder.js', function(req, res) {
+  res.sendFile(__dirname + '/' + 'public/js/pathFinder.js')
 })
 
 app.get('/two.min.js', function(req, res) {

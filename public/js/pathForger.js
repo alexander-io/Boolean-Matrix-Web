@@ -1,42 +1,10 @@
 var size, maze, start, end, direction, walkways;
 
-// Space to the right of the given position
-var rightSpace = function (pos) {
-  return {
-    x: pos.x + 1,
-    y: pos.y
-  }
-};
-
-// Space to the left of the given position
-var leftSpace = function (pos) {
-  return {
-    x: pos.x - 1,
-    y: pos.y
-  }
-};
-
-// Space above the given position
-var upSpace = function (pos) {
-  return {
-    x: pos.x,
-    y: pos.y - 1
-  }
-};
-
-// Space below the given position
-var downSpace = function (pos) {
-  return {
-    x: pos.x,
-    y: pos.y + 1
-  }
-};
-
 // Creates empty row for maze
 var createRow = function () {
   var newRow = []
   for (var i = 0; i < size; i++) {
-    newRow.push(false);
+    newRow.push(0);
   }
   return newRow;
 };
@@ -53,16 +21,6 @@ var printMaze = function () {
   console.log();
 };
 
-// Function to make getting coordinate values easier
-var getCoordinate = function (pos) {
-  return maze[pos.x][pos.y];
-}
-
-// Function to make updating coordinates easier
-var updateCoordinate = function (pos, value) {
-  maze[pos.x][pos.y] = value;
-}
-
 // Wrapper to recursive maze builder
 // The forging algorithm will eventually find the end of the maze,
 // but it will chizzle out the rest of the large chunks of wall along the way.
@@ -70,7 +28,7 @@ var buildMaze = function () {
   size = 16; // Size of maze
 
   // Keep track of the number of walkways vs. number of walls
-  walkways = 0;
+  // walkways = 0;
 
   // Initialize Maze
   maze = [];
@@ -83,8 +41,8 @@ var buildMaze = function () {
   end = {x: size - 1, y: size - 1};
 
   // Forge start and endpoints
-  updateCoordinate(start, true);
-  updateCoordinate(end, true);
+  updateCoordinate(start, 1);
+  updateCoordinate(end, 1);
 
   // Direction the path is forging (start --> end == true)
   direction = false;
@@ -99,8 +57,8 @@ var buildMaze = function () {
     var nextDown = start;
     while (true) {
       nextDown = downSpace(nextDown);
-      updateCoordinate(nextDown, true);
-      walkways++;
+      updateCoordinate(nextDown, 1);
+      // walkways++;
       if (getCoordinate(rightSpace(nextDown) || getCoordinate(downSpace(nextDown)))) {
         break;
       }
@@ -111,7 +69,6 @@ var buildMaze = function () {
     forgePath(start);
   }
 
-  console.log(walkways / (size*size));
   return maze;
 };
 
@@ -136,32 +93,21 @@ var forgePath = function (pos) {
 var forgeSpot = function (pos) {
   // If we can go here, and we have not been here...
   if (canMove(pos) && !getCoordinate(pos)) {
-    updateCoordinate(pos, true);
-    walkways++;
+    updateCoordinate(pos, 1);
+    // walkways++;
     forgePath(pos);
   }
 };
 
 // Determines whether you can move to the given position
 var canMove = function (pos) {
-  if (!isValidSpot(pos)) {
+  if (!isValidSpot(pos, size)) {
     return false;
   }
   if (breaksThrough(pos)) {
     return false;
   }
   if (makesWideHall(pos)) {
-    return false;
-  }
-  return true;
-};
-
-// Is this spot in the maze?
-var isValidSpot = function (pos) {
-  if (pos.x < 0 || pos.x >= size) {
-    return false;
-  }
-  if (pos.y < 0 || pos.y >= size) {
     return false;
   }
   return true;
@@ -185,7 +131,7 @@ var breaksThrough = function (pos) {
       }
     }
 
-    if (isValidSpot(neighbors[i]) && getCoordinate(neighbors[i])) {
+    if (isValidSpot(neighbors[i], size) && getCoordinate(neighbors[i])) {
       if (justOne) {
         return true;
       } else {
@@ -211,39 +157,29 @@ var makesWideHall = function (pos) {
 
   // Check each corner and its adjacent tiles
 
-  if (isValidSpot(l) && isValidSpot(ul) && isValidSpot(u)) {
+  if (isValidSpot(l, size) && isValidSpot(ul, size) && isValidSpot(u, size)) {
     if (getCoordinate(l) && getCoordinate(ul) && getCoordinate(u)) {
       return true;
     }
   }
 
-  if (isValidSpot(u) && isValidSpot(ur) && isValidSpot(r)) {
+  if (isValidSpot(u, size) && isValidSpot(ur, size) && isValidSpot(r, size, size)) {
     if (getCoordinate(u) && getCoordinate(ur) && getCoordinate(r)) {
       return true;
     }
   }
 
-  if (isValidSpot(r) && isValidSpot(rd) && isValidSpot(d)) {
+  if (isValidSpot(r, size) && isValidSpot(rd, size) && isValidSpot(d, size)) {
     if (getCoordinate(r) && getCoordinate(rd) && getCoordinate(d)) {
       return true;
     }
   }
 
-  if (isValidSpot(d) && isValidSpot(dl) && isValidSpot(l)) {
+  if (isValidSpot(d, size) && isValidSpot(dl, size) && isValidSpot(l, size)) {
     if (getCoordinate(d) && getCoordinate(dl) && getCoordinate(l)) {
       return true;
     }
   }
 
   return false;
-};
-
-// Retrieves neighbors (legitimate or not) for given position
-var findNeighbors = function (pos) {
-  var potentialSpots = [];
-  potentialSpots.push(rightSpace(pos));
-  potentialSpots.push(downSpace(pos));
-  potentialSpots.push(leftSpace(pos));
-  potentialSpots.push(upSpace(pos));
-  return potentialSpots;
 };
