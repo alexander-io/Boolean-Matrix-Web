@@ -1,3 +1,5 @@
+// NOTE: DEPRECATED
+
 let array_dimension = {
   w : 16,
   h : 16
