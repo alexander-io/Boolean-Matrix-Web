@@ -93,18 +93,22 @@ var buildMaze = function () {
   // This makes different directions through the maze more available towards the front
   forgePath(end);
 
-  // CORNER CASE: sometimes the pathForger does not reach the end
-  // So, breakthrough until the end is connected to a path
-  if (!getCoordinate(leftSpace(end)) && !getCoordinate(upSpace(end))) {
-    var nextUp = end;
+  // CORNER CASE: sometimes the pathForger does not reach the start
+  // So, breakthrough until the start is connected to a path
+  if (!getCoordinate(rightSpace(start)) && !getCoordinate(downSpace(start))) {
+    var nextDown = start;
     while (true) {
-      nextUp = upSpace(nextUp);
-      updateCoordinate(nextUp, true);
+      nextDown = downSpace(nextDown);
+      updateCoordinate(nextDown, true);
       walkways++;
-      if (getCoordinate(leftSpace(nextUp) || getCoordinate(upSpace(nextUp)))) {
+      if (getCoordinate(rightSpace(nextDown) || getCoordinate(downSpace(nextDown)))) {
         break;
       }
     }
+
+    // Then, in case the corner case cut off a GIANT amound of the maze, run the pathForger from start to end
+    direction = true;
+    forgePath(start);
   }
 
   console.log(walkways / (size*size));
@@ -180,7 +184,7 @@ var breaksThrough = function (pos) {
         return false;
       }
     }
-    
+
     if (isValidSpot(neighbors[i]) && getCoordinate(neighbors[i])) {
       if (justOne) {
         return true;
