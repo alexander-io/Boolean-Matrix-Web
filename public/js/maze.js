@@ -39,10 +39,12 @@ let renderMaze = function () {
     for (let x = 0; x < maze.length; x++) {
       let spot = two.makeRectangle( block_size*y + (block_size/2), block_size*x + (block_size/2), block_size ,block_size);
 
-      if (maze[x][y]) {
-        spot.fill = 'rgb(0, 200, 255)';
-      } else {
+      if (maze[x][y] == 0) { // Wall
         spot.fill = 'rgb(0, 0, 0)';
+      } else if (maze[x][y] == 1) { // Walkway
+        spot.fill = 'rgb(0, 200, 255)';
+      } else if (maze[x][y] == 2) { // Solved path
+        spot.fill = 'rgb(150, 150, 70)';
       }
 
       displayRow.push(spot);

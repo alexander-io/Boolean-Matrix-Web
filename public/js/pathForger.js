@@ -1,12 +1,10 @@
 var size, maze, start, end, direction, walkways;
 
-
-
 // Creates empty row for maze
 var createRow = function () {
   var newRow = []
   for (var i = 0; i < size; i++) {
-    newRow.push(false);
+    newRow.push(0);
   }
   return newRow;
 };
@@ -43,8 +41,8 @@ var buildMaze = function () {
   end = {x: size - 1, y: size - 1};
 
   // Forge start and endpoints
-  updateCoordinate(start, true);
-  updateCoordinate(end, true);
+  updateCoordinate(start, 1);
+  updateCoordinate(end, 1);
 
   // Direction the path is forging (start --> end == true)
   direction = false;
@@ -59,7 +57,7 @@ var buildMaze = function () {
     var nextDown = start;
     while (true) {
       nextDown = downSpace(nextDown);
-      updateCoordinate(nextDown, true);
+      updateCoordinate(nextDown, 1);
       walkways++;
       if (getCoordinate(rightSpace(nextDown) || getCoordinate(downSpace(nextDown)))) {
         break;
@@ -96,7 +94,7 @@ var forgePath = function (pos) {
 var forgeSpot = function (pos) {
   // If we can go here, and we have not been here...
   if (canMove(pos) && !getCoordinate(pos)) {
-    updateCoordinate(pos, true);
+    updateCoordinate(pos, 1);
     walkways++;
     forgePath(pos);
   }
