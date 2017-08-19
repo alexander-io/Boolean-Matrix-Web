@@ -1,4 +1,8 @@
-var size = 16; // Size of maze
+var size;
+var maze;
+var start;
+var end;
+var walkways;
 
 var rightSpace = function (pos) {
   return {
@@ -28,9 +32,6 @@ var downSpace = function (pos) {
   }
 };
 
-// Keep track of number of walkways (used for finding ratio of walkways to walls)
-var walkways = 0;
-
 // Creates empty row for maze
 var createRow = function () {
   var newRow = []
@@ -39,12 +40,6 @@ var createRow = function () {
   }
   return newRow;
 };
-
-// Initialize Maze
-var maze = [];
-for (var i = 0; i < size; i++) {
-  maze.push(createRow());
-}
 
 // Testing purposes
 var printMaze = function () {
@@ -68,19 +63,32 @@ var updateCoordinate = function (pos, value) {
   maze[pos.x][pos.y] = value;
 }
 
-// Initialize start and endpoints
-var start = {x: 0, y: 0};
-var end = {x: size - 1, y: size - 1};
-
-// Forge start and endpoints
-updateCoordinate(start, true);
-updateCoordinate(end, true);
-
 // Wrapper to recursive maze builder
 // The forging algorithm will eventually find the end of the maze,
 // but it will chizzle out the rest of the large chunks of wall along the way.
-var layDownHappyPath = function () {
+var buildMaze = function () {
+  size = 16; // Size of maze
+
+  // Initialize Maze
+  maze = [];
+  for (var i = 0; i < size; i++) {
+    maze.push(createRow());
+  }
+
+  // Initialize start and endpoints
+  start = {x: 0, y: 0};
+  end = {x: size - 1, y: size - 1};
+
+  // Forge start and endpoints
+  updateCoordinate(start, true);
+  updateCoordinate(end, true);
+
+  walkways = 0;
+
   forgePath(start);
+
+  console.log(walkways / (size*size));
+  return maze;
 };
 
 // Explore which path to take
@@ -207,12 +215,4 @@ var findNeighbors = function (pos) {
   potentialSpots.push(leftSpace(pos));
   potentialSpots.push(upSpace(pos));
   return potentialSpots;
-};
-
-layDownHappyPath();
-console.log(walkways / (size*size));
-
-buildMaze = function () {
-  layDownHappyPath();
-  return maze;
 };
