@@ -1,25 +1,25 @@
 var size = 16; // Size of maze
-var window_width = window.innerWidth;
-var window_height = window.innerHeight;
-
-// Draw the maze
-var drawMaze = function(maze) {
-  var mount = document.getElementById('mount');
-  for (var i = 0; i < maze.length; i++){
-    for (var j = 0; j < maze[0].length; j++){
-      var block = document.createElement('div');
-      block.style.display = 'inline-block';
-      block.style.width = (window_width / maze.length) - 1 + 'px';
-      // block.style.height = window_height / maze[0].length + 'px';
-      block.style.height = block.style.width;
-      maze[i][j] ? block.style.backgroundColor = '#212121': block.style.backgroundColor = 'white';
-      mount.appendChild(block);
-    }
-  }
-};
-
+// var window_width = window.innerWidth;
+// var window_height = window.innerHeight;
+//
+// // Draw the maze
+// var drawMaze = function(maze) {
+//   var mount = document.getElementById('mount');
+//   for (var i = 0; i < maze.length; i++){
+//     for (var j = 0; j < maze[0].length; j++){
+//       var block = document.createElement('div');
+//       block.style.display = 'inline-block';
+//       block.style.width = (window_width / maze.length) - 1 + 'px';
+//       // block.style.height = window_height / maze[0].length + 'px';
+//       block.style.height = block.style.width;
+//       maze[i][j] ? block.style.backgroundColor = '#212121': block.style.backgroundColor = 'white';
+//       mount.appendChild(block);
+//     }
+//   }
+// };
 
 var counter = 0;
+var walkways = 2; // start and end
 
 // Creates empty row for maze
 var createRow = function () {
@@ -96,14 +96,20 @@ var forgePath = function (pos) {
 
 // Choose a path and forge it
 var forgeSpot = function (pos) {
-  console.log(counter++);
+  // console.log(counter++);
   // BASE CASE --> We hit the end of the maze
   if (pos.x == size - 1 && pos.y == size - 1) {
     return true;
   }
+  // TODO: Implement a wall-walkway ratio check
+  // if (walkways / (size*size) > .5) {
+  //   return true;
+  // }
+
   // If we have not been here, and we can go here...
   if (canMove(pos) && !getCoordinate(pos)) {
     updateCoordinate(pos, true);
+    walkways++;
     var isHappy = forgePath(pos);
     if (isHappy) {
       return true;
@@ -218,9 +224,12 @@ var downSpace = function (pos) {
   }
 };
 
-layDownHappyPath();
+// layDownHappyPath();
 // printMaze();
 
+buildMaze = function () {
+  layDownHappyPath();
+  return maze;
+}
 
-
-drawMaze(maze);
+// drawMaze(maze);
