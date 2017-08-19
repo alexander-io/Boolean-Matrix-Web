@@ -32,6 +32,7 @@ let block_size = (two.width / 16);
 
 let renderMaze = function () {
   let maze = buildMaze();
+  solveMaze(maze);
   let displayMaze = [];
   for (let y = 0; y < maze.length; y++) {
     let displayRow = [];
