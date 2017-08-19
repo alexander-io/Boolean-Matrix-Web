@@ -87,6 +87,20 @@ var buildMaze = function () {
 
   forgePath(start);
 
+  // CORNER CASE: sometimes the pathForger does not reach the end
+  // So, breakthrough until the end is connected to a path
+  if (!getCoordinate(leftSpace(end)) && !getCoordinate(upSpace(end))) {
+    var nextUp = end;
+    while (true) {
+      nextUp = upSpace(nextUp);
+      updateCoordinate(nextUp, true);
+      walkways++;
+      if (getCoordinate(leftSpace(nextUp) || getCoordinate(upSpace(nextUp)))) {
+        break;
+      }
+    }
+  }
+
   console.log(walkways / (size*size));
   return maze;
 };
