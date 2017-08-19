@@ -1,25 +1,35 @@
 var size = 16; // Size of maze
-// var window_width = window.innerWidth;
-// var window_height = window.innerHeight;
-//
-// // Draw the maze
-// var drawMaze = function(maze) {
-//   var mount = document.getElementById('mount');
-//   for (var i = 0; i < maze.length; i++){
-//     for (var j = 0; j < maze[0].length; j++){
-//       var block = document.createElement('div');
-//       block.style.display = 'inline-block';
-//       block.style.width = (window_width / maze.length) - 1 + 'px';
-//       // block.style.height = window_height / maze[0].length + 'px';
-//       block.style.height = block.style.width;
-//       maze[i][j] ? block.style.backgroundColor = '#212121': block.style.backgroundColor = 'white';
-//       mount.appendChild(block);
-//     }
-//   }
-// };
 
-var counter = 0;
-var walkways = 2; // start and end
+var rightSpace = function (pos) {
+  return {
+    x: pos.x + 1,
+    y: pos.y
+  }
+};
+
+var leftSpace = function (pos) {
+  return {
+    x: pos.x - 1,
+    y: pos.y
+  }
+};
+
+var upSpace = function (pos) {
+  return {
+    x: pos.x,
+    y: pos.y - 1
+  }
+};
+
+var downSpace = function (pos) {
+  return {
+    x: pos.x,
+    y: pos.y + 1
+  }
+};
+
+// Keep track of number of walkways (used for finding ratio of walkways to walls)
+var walkways = 0;
 
 // Creates empty row for maze
 var createRow = function () {
@@ -62,12 +72,13 @@ var updateCoordinate = function (pos, value) {
 var start = {x: 0, y: 0};
 var end = {x: size - 1, y: size - 1};
 
+// Forge start and endpoints
 updateCoordinate(start, true);
 updateCoordinate(end, true);
 
-// Forge "happy path"
-
-// Wrapper to recursive function
+// Wrapper to recursive maze builder
+// The forging algorithm will eventually find the end of the maze,
+// but it will chizzle out the rest of the large chunks of wall along the way.
 var layDownHappyPath = function () {
   forgePath(start);
 };
@@ -78,52 +89,33 @@ var forgePath = function (pos) {
   var potentialSpots = findNeighbors(pos);
 
   while (potentialSpots.length > 0) {
-    // Randomly pick from potentialSpots
+    // Randomly pick from potentialSpots to randomize forging direction
     var index = Math.floor(Math.random()*potentialSpots.length);
     var spot = potentialSpots[index];
 
-    // if (forgeSpot(potentialSpots[index])) {
-    //   return true;
-    // }
     forgeSpot(potentialSpots[index]);
 
     // Remove spot from the potential spots
     potentialSpots.splice(index, 1);
   }
-
-  return false;
 };
 
-// Choose a path and forge it
+// If possible, forge the given spot/position
 var forgeSpot = function (pos) {
-  // console.log(counter++);
-  // BASE CASE --> We hit the end of the maze
-  if (pos.x == size - 1 && pos.y == size - 1) {
-    return true;
-  }
-  // TODO: Implement a wall-walkway ratio check
-  // if (walkways / (size*size) > .5) {
-  //   return true;
-  // }
-
-  // If we have not been here, and we can go here...
+  // If we can go here, and we have not been here...
   if (canMove(pos) && !getCoordinate(pos)) {
     updateCoordinate(pos, true);
     walkways++;
-    var isHappy = forgePath(pos);
-    if (isHappy) {
-      return true;
-    } // else {
-    //   // If this path didn't lead us to the end of the maze
-    //   updateCoordinate(pos, false);
-    // }
+    forgePath(pos);
   }
-  return false;
 };
 
 // Determines whether you can move to the given position
 var canMove = function (pos) {
   if (!isValidSpot(pos)) {
+    return false;
+  }
+  if (breaksThrough(pos)) {
     return false;
   }
   if (makesWideHall(pos)) {
@@ -141,6 +133,27 @@ var isValidSpot = function (pos) {
     return false;
   }
   return true;
+};
+
+// Will chizzling out this section of wall break through to another section of the path?
+// If it does, the maze becomes too easy to solve...
+var breaksThrough = function (pos) {
+  var neighbors = findNeighbors(pos);
+  var justOne = false; // Only allowed one walkway neighbor
+  for (var i = 0; i < neighbors.length; i++) {
+    // BASE CASE --> We hit the end of the maze
+    // This is the one time we DO want to break through
+    if (neighbors[i].x == end.x && neighbors[i].y == end.y) {
+      return false;
+    }
+    if (isValidSpot(neighbors[i]) && getCoordinate(neighbors[i])) {
+      if (justOne) {
+        return true;
+      } else {
+        justOne = true;
+      }
+    }
+  }
 };
 
 // Does this spot make a wide hall?
@@ -196,40 +209,10 @@ var findNeighbors = function (pos) {
   return potentialSpots;
 };
 
-var rightSpace = function (pos) {
-  return {
-    x: pos.x + 1,
-    y: pos.y
-  }
-};
-
-var leftSpace = function (pos) {
-  return {
-    x: pos.x - 1,
-    y: pos.y
-  }
-};
-
-var upSpace = function (pos) {
-  return {
-    x: pos.x,
-    y: pos.y - 1
-  }
-};
-
-var downSpace = function (pos) {
-  return {
-    x: pos.x,
-    y: pos.y + 1
-  }
-};
-
-// layDownHappyPath();
-// printMaze();
+layDownHappyPath();
+console.log(walkways / (size*size));
 
 buildMaze = function () {
   layDownHappyPath();
   return maze;
-}
-
-// drawMaze(maze);
+};
