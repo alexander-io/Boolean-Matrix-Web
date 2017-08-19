@@ -1,25 +1,36 @@
-var size = 16; // Size of maze
-// var window_width = window.innerWidth;
-// var window_height = window.innerHeight;
-//
-// // Draw the maze
-// var drawMaze = function(maze) {
-//   var mount = document.getElementById('mount');
-//   for (var i = 0; i < maze.length; i++){
-//     for (var j = 0; j < maze[0].length; j++){
-//       var block = document.createElement('div');
-//       block.style.display = 'inline-block';
-//       block.style.width = (window_width / maze.length) - 1 + 'px';
-//       // block.style.height = window_height / maze[0].length + 'px';
-//       block.style.height = block.style.width;
-//       maze[i][j] ? block.style.backgroundColor = '#212121': block.style.backgroundColor = 'white';
-//       mount.appendChild(block);
-//     }
-//   }
-// };
+var size, maze, start, end, direction, walkways;
 
-var counter = 0;
-var walkways = 2; // start and end
+// Space to the right of the given position
+var rightSpace = function (pos) {
+  return {
+    x: pos.x + 1,
+    y: pos.y
+  }
+};
+
+// Space to the left of the given position
+var leftSpace = function (pos) {
+  return {
+    x: pos.x - 1,
+    y: pos.y
+  }
+};
+
+// Space above the given position
+var upSpace = function (pos) {
+  return {
+    x: pos.x,
+    y: pos.y - 1
+  }
+};
+
+// Space below the given position
+var downSpace = function (pos) {
+  return {
+    x: pos.x,
+    y: pos.y + 1
+  }
+};
 
 // Creates empty row for maze
 var createRow = function () {
@@ -29,12 +40,6 @@ var createRow = function () {
   }
   return newRow;
 };
-
-// Initialize Maze
-var maze = [];
-for (var i = 0; i < size; i++) {
-  maze.push(createRow());
-}
 
 // Testing purposes
 var printMaze = function () {
@@ -58,18 +63,56 @@ var updateCoordinate = function (pos, value) {
   maze[pos.x][pos.y] = value;
 }
 
-// Initialize start and endpoints
-var start = {x: 0, y: 0};
-var end = {x: size - 1, y: size - 1};
+// Wrapper to recursive maze builder
+// The forging algorithm will eventually find the end of the maze,
+// but it will chizzle out the rest of the large chunks of wall along the way.
+var buildMaze = function () {
+  size = 16; // Size of maze
 
-updateCoordinate(start, true);
-updateCoordinate(end, true);
+  // Keep track of the number of walkways vs. number of walls
+  walkways = 0;
 
-// Forge "happy path"
+  // Initialize Maze
+  maze = [];
+  for (var i = 0; i < size; i++) {
+    maze.push(createRow());
+  }
 
-// Wrapper to recursive function
-var layDownHappyPath = function () {
-  forgePath(start);
+  // Initialize start and endpoints
+  start = {x: 0, y: 0};
+  end = {x: size - 1, y: size - 1};
+
+  // Forge start and endpoints
+  updateCoordinate(start, true);
+  updateCoordinate(end, true);
+
+  // Direction the path is forging (start --> end == true)
+  direction = false;
+
+  // Start from the end, forge to the start
+  // This makes different directions through the maze more available towards the front
+  forgePath(end);
+
+  // CORNER CASE: sometimes the pathForger does not reach the start
+  // So, breakthrough until the start is connected to a path
+  if (!getCoordinate(rightSpace(start)) && !getCoordinate(downSpace(start))) {
+    var nextDown = start;
+    while (true) {
+      nextDown = downSpace(nextDown);
+      updateCoordinate(nextDown, true);
+      walkways++;
+      if (getCoordinate(rightSpace(nextDown) || getCoordinate(downSpace(nextDown)))) {
+        break;
+      }
+    }
+
+    // Then, in case the corner case cut off a GIANT amound of the maze, run the pathForger from start to end
+    direction = true;
+    forgePath(start);
+  }
+
+  console.log(walkways / (size*size));
+  return maze;
 };
 
 // Explore which path to take
@@ -78,52 +121,33 @@ var forgePath = function (pos) {
   var potentialSpots = findNeighbors(pos);
 
   while (potentialSpots.length > 0) {
-    // Randomly pick from potentialSpots
+    // Randomly pick from potentialSpots to randomize forging direction
     var index = Math.floor(Math.random()*potentialSpots.length);
     var spot = potentialSpots[index];
 
-    // if (forgeSpot(potentialSpots[index])) {
-    //   return true;
-    // }
     forgeSpot(potentialSpots[index]);
 
     // Remove spot from the potential spots
     potentialSpots.splice(index, 1);
   }
-
-  return false;
 };
 
-// Choose a path and forge it
+// If possible, forge the given spot/position
 var forgeSpot = function (pos) {
-  // console.log(counter++);
-  // BASE CASE --> We hit the end of the maze
-  if (pos.x == size - 1 && pos.y == size - 1) {
-    return true;
-  }
-  // TODO: Implement a wall-walkway ratio check
-  // if (walkways / (size*size) > .5) {
-  //   return true;
-  // }
-
-  // If we have not been here, and we can go here...
+  // If we can go here, and we have not been here...
   if (canMove(pos) && !getCoordinate(pos)) {
     updateCoordinate(pos, true);
     walkways++;
-    var isHappy = forgePath(pos);
-    if (isHappy) {
-      return true;
-    } // else {
-    //   // If this path didn't lead us to the end of the maze
-    //   updateCoordinate(pos, false);
-    // }
+    forgePath(pos);
   }
-  return false;
 };
 
 // Determines whether you can move to the given position
 var canMove = function (pos) {
   if (!isValidSpot(pos)) {
+    return false;
+  }
+  if (breaksThrough(pos)) {
     return false;
   }
   if (makesWideHall(pos)) {
@@ -141,6 +165,34 @@ var isValidSpot = function (pos) {
     return false;
   }
   return true;
+};
+
+// Will chizzling out this section of wall break through to another section of the path?
+// If it does, the maze becomes too easy to solve...
+var breaksThrough = function (pos) {
+  var neighbors = findNeighbors(pos);
+  var justOne = false; // Only allowed one walkway neighbor
+  for (var i = 0; i < neighbors.length; i++) {
+    // BASE CASE --> We hit the end (or start) of the maze
+    // This is the one time we DO want to break through
+    if (direction) {
+      if (neighbors[i].x == end.x && neighbors[i].y == end.y) {
+        return false;
+      }
+    } else {
+      if (neighbors[i].x == start.x && neighbors[i].y == start.y) {
+        return false;
+      }
+    }
+
+    if (isValidSpot(neighbors[i]) && getCoordinate(neighbors[i])) {
+      if (justOne) {
+        return true;
+      } else {
+        justOne = true;
+      }
+    }
+  }
 };
 
 // Does this spot make a wide hall?
@@ -195,41 +247,3 @@ var findNeighbors = function (pos) {
   potentialSpots.push(upSpace(pos));
   return potentialSpots;
 };
-
-var rightSpace = function (pos) {
-  return {
-    x: pos.x + 1,
-    y: pos.y
-  }
-};
-
-var leftSpace = function (pos) {
-  return {
-    x: pos.x - 1,
-    y: pos.y
-  }
-};
-
-var upSpace = function (pos) {
-  return {
-    x: pos.x,
-    y: pos.y - 1
-  }
-};
-
-var downSpace = function (pos) {
-  return {
-    x: pos.x,
-    y: pos.y + 1
-  }
-};
-
-// layDownHappyPath();
-// printMaze();
-
-buildMaze = function () {
-  layDownHappyPath();
-  return maze;
-}
-
-// drawMaze(maze);
