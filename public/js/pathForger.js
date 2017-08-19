@@ -1,9 +1,6 @@
-var size;
-var maze;
-var start;
-var end;
-var walkways;
+var size, maze, start, end, walkways;
 
+// Space to the right of the given position
 var rightSpace = function (pos) {
   return {
     x: pos.x + 1,
@@ -11,6 +8,7 @@ var rightSpace = function (pos) {
   }
 };
 
+// Space to the left of the given position
 var leftSpace = function (pos) {
   return {
     x: pos.x - 1,
@@ -18,6 +16,7 @@ var leftSpace = function (pos) {
   }
 };
 
+// Space above the given position
 var upSpace = function (pos) {
   return {
     x: pos.x,
@@ -25,6 +24,7 @@ var upSpace = function (pos) {
   }
 };
 
+// Space below the given position
 var downSpace = function (pos) {
   return {
     x: pos.x,
