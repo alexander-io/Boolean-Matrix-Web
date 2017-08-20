@@ -1,5 +1,3 @@
-var size, maze, start, end, direction, walkways;
-
 // Creates empty row for maze
 var createRow = function () {
   var newRow = []
@@ -9,24 +7,10 @@ var createRow = function () {
   return newRow;
 };
 
-// Testing purposes
-var printMaze = function () {
-  for (var i = 0; i < maze.length; i++) {
-    var rowString = '';
-    for (var j = 0; j < maze.length; j++) {
-      rowString += maze[j][i] + '\t';
-    }
-    console.log(rowString);
-  }
-  console.log();
-};
-
 // Wrapper to recursive maze builder
 // The forging algorithm will eventually find the end of the maze,
 // but it will chizzle out the rest of the large chunks of wall along the way.
 var buildMaze = function () {
-  size = 24; // Size of maze
-
   // Keep track of the number of walkways vs. number of walls
   // walkways = 0;
 
@@ -49,6 +33,7 @@ var buildMaze = function () {
 
   // Start from the end, forge to the start
   // This makes different directions through the maze more available towards the front
+  // Which makes it more difficult for the pathFinder to solve the maze
   forgePath(end);
 
   // CORNER CASE: sometimes the pathForger does not reach the start

@@ -1,3 +1,13 @@
-body{
-  margin:0;
+body {
+  margin: 0;
+}
+
+svg {
+  background-color: black;
+}
+
+#maze-mount {
+  padding: 12.5%;
+  margin: auto;
+  display: block;
 }
