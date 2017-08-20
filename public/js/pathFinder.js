@@ -30,8 +30,12 @@ var popCoordinate = function () {
 
 // Refreshes the maze
 var refreshMaze = function () {
+  two.clear();
+
   maze = buildMaze();
   renderMaze(maze);
+
+  velocityTable = {};
 
   start = {x: 0, y: 0};
   end = {x: maze.length - 1, y: maze.length - 1};
@@ -50,10 +54,18 @@ var solveMaze = function () {
   return maze;
 };
 
+var waitTime = 200;
+
 // The algorithm will continue working until it either puts a new step onto the path or removes one from a dead end
 // Then, it takes a break for the given interval
 var findPath = function () {
   if (mazeCompleted) {
+    if (waitTime > 50) {
+      waitTime -= 50;
+      return;
+    } else {
+      waitTime = 200;
+    }
     refreshMaze();
     mazeCompleted = false;
     return;
