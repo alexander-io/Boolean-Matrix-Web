@@ -8,7 +8,7 @@ var two = new Two({
 }).appendTo(document.getElementById('maze-mount'));
 
 let block_size = (two.width / 24);
-var maze, displayMaze;
+var displayMaze;
 var WALL_COLOR = 'rgb(0,0,0)';
 var WALK_COLOR = '#87CEFA';
 var PATH_COLOR = '#fffc00'; // Snapchat yellow
@@ -16,6 +16,7 @@ var PATH_COLOR = '#fffc00'; // Snapchat yellow
 // Keep track of a velocity table
 var velocityTable = {};
 
+// Spin the given position in a given direction (depends on if the path is digging or backtracking)
 var spin = function (pos, direction) {
   var initVelocity = 0.3;
   velocityTable[coordinatesToString(pos)] = {
@@ -75,9 +76,6 @@ let renderMaze = function (maze) {
   displayMaze[0][0].fill = '#a253e8';
   displayMaze[maze.length - 1][maze.length - 1].fill = '#a253e8';
 };
-
-// Kick off the Amazing Maze
-solveMaze(maze);
 
 // Rotate spinning positions (and slow them down)
 two.bind('update', function() {

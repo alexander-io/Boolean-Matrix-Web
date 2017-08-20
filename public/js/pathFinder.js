@@ -1,26 +1,16 @@
-var maze, start, end, visited, waitTime;
-
-var INTERVAL_TIME = 50;
-
-// Small delay between mazes
-var DELAY = 200;
-
+// Mark coordinate as visited
 var visitCoordinate = function (pos) {
   visited[coordinatesToString(pos)] = true;
 };
 
-// Global variables, used for setInterval function
-var mazeCompleted = false;
-var pathStack; // Key = coordinatesToString, Value = {pos: coordinate, neighborsLeft: neigbors}
-
+// Find neighbors of pos, and push all info onto the stack
 var stackCoordinate = function (pos) {
   var neighbors = findNeighbors(pos);
   var posInfo = {};
   posInfo.pos = pos;
   posInfo.neighbors = neighbors;
-
   pushCoordinate(posInfo);
-}
+};
 
 // Function to find neighbors of newly visited position, push onto stack
 var pushCoordinate = function (posInfo) {
@@ -32,34 +22,6 @@ var popCoordinate = function () {
   var posInfo = pathStack[0];
   pathStack.splice(0, 1);
   return posInfo;
-};
-
-// Refreshes the maze
-var refreshMaze = function () {
-  two.clear(); // Don't clutter the browser with old maze parts
-
-  maze = buildMaze();
-  renderMaze(maze);
-
-  velocityTable = {};
-
-  start = {x: 0, y: 0};
-  end = {x: maze.length - 1, y: maze.length - 1};
-
-  visited = {};
-  visitCoordinate(start);
-
-  pathStack = [];
-  stackCoordinate(start);
-
-  waitTime = DELAY;
-};
-
-// Wrapper function to solve maze
-var solveMaze = function () {
-  refreshMaze();
-  setInterval(findPath, INTERVAL_TIME);
-  return maze;
 };
 
 // The algorithm will continue working until it either puts a new step onto the path or removes one from a dead end

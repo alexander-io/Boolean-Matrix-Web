@@ -31,6 +31,10 @@ app.get('/render.js', function(req, res) {
   res.sendFile(__dirname + '/' + 'public/js/render.js')
 })
 
+app.get('/maze.js', function(req, res) {
+  res.sendFile(__dirname + '/' + 'public/js/maze.js')
+})
+
 app.listen(port, function(){
   console.log('listening to :', port);
 })
