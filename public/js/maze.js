@@ -1,11 +1,11 @@
-let window_width = window.innerWidth, window_height = window.innerHeight
+let window_width = window.innerWidth, window_height = window.innerHeight;
+var two;
 
-var two = new Two({
+two = new Two({
   fullscreen: false,
   autostart: true,
-  width : window_width/2,
-  height : window_width/2,
-  fill : 'black'
+  width : window_width * .75,
+  height : window_width * .75
 }).appendTo(document.getElementById('maze-mount'));
 
 let col = []
@@ -14,17 +14,43 @@ let dimension = {
   s:16
 }
 
-let block_size = (two.width / 16);
+let block_size = (two.width / 24);
 var maze, displayMaze;
-var WALL_COLOR = 'rgb(0, 0, 0)';
-var WALK_COLOR = 'rgb(0, 200, 255)';
+var WALL_COLOR = 'rgb(0,0,0)';
+var WALK_COLOR = 'rgb(65,105,225)';
 var PATH_COLOR = 'rgb(150, 30, 190)';
+
+// Keep track of a velocity table
+var velocityTable = {};
+
+var spin = function (pos, direction) {
+  var initVelocity = 0.3;
+  velocityTable[coordinatesToString(pos)] = {
+    pos: pos,
+    velocity: (direction ? initVelocity : -initVelocity)
+  };
+};
+
+var slowDown = function (pos) {
+  var friction = 0.002;
+  var velocity = velocityTable[coordinatesToString(pos)].velocity;
+
+  if (velocity > 0) {
+    velocityTable[coordinatesToString(pos)].velocity = velocity - friction;
+  } else if (velocity < 0) {
+    velocityTable[coordinatesToString(pos)].velocity = velocity + friction;
+  } else {
+    delete velocityTable[coordinatesToString(pos)];
+  }
+};
 
 var setColor = function (pos, value) {
   if (value == 1) {
     displayMaze[pos.y][pos.x].fill = WALK_COLOR;
+    spin(pos, false);
   } else if (value == 2) {
     displayMaze[pos.y][pos.x].fill = PATH_COLOR;
+    spin(pos, true);
   }
 };
 
@@ -33,7 +59,7 @@ let renderMaze = function (maze) {
   for (let y = 0; y < maze.length; y++) {
     let displayRow = [];
     for (let x = 0; x < maze.length; x++) {
-      let spot = two.makeRectangle( block_size*y + (block_size/2), block_size*x + (block_size/2), block_size ,block_size);
+      let spot = two.makeRectangle( block_size*y + (block_size/2), block_size*x + (block_size/2), (block_size), block_size);
 
       if (maze[x][y] == 0) { // Wall
         spot.fill = WALL_COLOR;
@@ -47,23 +73,19 @@ let renderMaze = function (maze) {
     }
     displayMaze.push(displayRow);
   }
-  displayMaze[0][0].fill = 'rgb(111, 111, 111)';
-  displayMaze[maze.length - 1][maze.length - 1].fill = 'rgb(111, 111, 111)';
+  displayMaze[0][0].fill = 'rgb(0,255,0)';
+  displayMaze[maze.length - 1][maze.length - 1].fill = 'rgb(0,255,0)';
 };
 
 // Kick off the Amazing Maze
 solveMaze(maze);
 
 two.bind('update', function() {
-  // rect.rotation += 0.001;
-  // for (var y = 0; y < displayMaze.length; y++) {
-  //   for (var x = 0; x < displayMaze.length; x++) {
-  //     if (maze[y][x] == 2) {
-  //       displayMaze[x][y].rotation += 0.01;
-  //     }
-  //   }
-  // }
-  // displayMaze[0][0].rotation += 0.1;
-  // displayMaze[1][1].rotation += 0.05;
-  // displayMaze[displayMaze.length - 1][displayMaze.length - 1].rotation += 0.1;
+  for (var key in velocityTable) {
+    if (velocityTable.hasOwnProperty(key)) {
+      var displaySpot = velocityTable[key].pos;
+      displayMaze[displaySpot.y][displaySpot.x].rotation += velocityTable[key].velocity;
+      slowDown(displaySpot);
+    }
+  }
 });

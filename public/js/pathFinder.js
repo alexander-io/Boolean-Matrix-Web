@@ -30,8 +30,12 @@ var popCoordinate = function () {
 
 // Refreshes the maze
 var refreshMaze = function () {
+  two.clear();
+
   maze = buildMaze();
   renderMaze(maze);
+
+  velocityTable = {};
 
   start = {x: 0, y: 0};
   end = {x: maze.length - 1, y: maze.length - 1};
