@@ -49,6 +49,7 @@ var buildMaze = function () {
 
   // Start from the end, forge to the start
   // This makes different directions through the maze more available towards the front
+  // Which makes it more difficult for the pathFinder to solve the maze
   forgePath(end);
 
   // CORNER CASE: sometimes the pathForger does not reach the start

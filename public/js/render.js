@@ -1,18 +1,11 @@
 let window_width = window.innerWidth, window_height = window.innerHeight;
-var two;
 
-two = new Two({
+var two = new Two({
   fullscreen: false,
   autostart: true,
   width : window_width * .75,
   height : window_width * .75
 }).appendTo(document.getElementById('maze-mount'));
-
-let col = []
-
-let dimension = {
-  s:16
-}
 
 let block_size = (two.width / 24);
 var maze, displayMaze;
@@ -31,6 +24,7 @@ var spin = function (pos, direction) {
   };
 };
 
+// Function to slow down the rotation of a spinning position
 var slowDown = function (pos) {
   var friction = 0.002;
   var velocity = velocityTable[coordinatesToString(pos)].velocity;
@@ -44,7 +38,8 @@ var slowDown = function (pos) {
   }
 };
 
-var setColor = function (pos, value) {
+// Function to change the color of a position as well as put spin on it as the path goes by
+var passPosition = function (pos, value) {
   if (value == 1) {
     displayMaze[pos.y][pos.x].fill = WALK_COLOR;
     spin(pos, false);
@@ -54,7 +49,9 @@ var setColor = function (pos, value) {
   }
 };
 
+// Function to render the maze (used when walls for a new maze are built)
 let renderMaze = function (maze) {
+  // Keep track of the actual display in a data structure reflecting the underlying maze
   displayMaze = [];
   for (let y = 0; y < maze.length; y++) {
     let displayRow = [];
@@ -73,6 +70,8 @@ let renderMaze = function (maze) {
     }
     displayMaze.push(displayRow);
   }
+
+  // Give the start and endpoints a unique color
   displayMaze[0][0].fill = '#a253e8';
   displayMaze[maze.length - 1][maze.length - 1].fill = '#a253e8';
 };
@@ -80,6 +79,7 @@ let renderMaze = function (maze) {
 // Kick off the Amazing Maze
 solveMaze(maze);
 
+// Rotate spinning positions (and slow them down)
 two.bind('update', function() {
   for (var key in velocityTable) {
     if (velocityTable.hasOwnProperty(key)) {

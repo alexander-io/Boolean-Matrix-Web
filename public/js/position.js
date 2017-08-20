@@ -1,4 +1,4 @@
-// Function to make getting coordinate values easier
+// Function to retrieve coordinate values easier
 var getCoordinate = function (pos) {
   return maze[pos.x][pos.y];
 }
