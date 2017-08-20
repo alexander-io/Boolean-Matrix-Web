@@ -4,9 +4,34 @@ var visitCoordinate = function (pos) {
   visited[coordinatesToString(pos)] = true;
 };
 
-// Wrapper function to solve maze
-var solveMaze = function (maze) {
-  maze = maze;
+// Global variables, used for setInterval function
+var mazeCompleted = false;
+var pathStack; // Key = coordinatesToString, Value = {pos: coordinate, neighborsLeft: neigbors}
+
+var stackCoordinate = function (pos) {
+  var neighbors = findNeighbors(pos);
+  var posInfo = {};
+  posInfo.pos = pos;
+  posInfo.neighbors = neighbors;
+
+  pushCoordinate(posInfo);
+}
+
+// Function to find neighbors of newly visited position, push onto stack
+var pushCoordinate = function (posInfo) {
+  pathStack.unshift(posInfo);
+};
+
+var popCoordinate = function () {
+  var posInfo = pathStack[0];
+  pathStack.splice(0, 1);
+  return posInfo;
+};
+
+// Refreshes the maze
+var refreshMaze = function () {
+  maze = buildMaze();
+  renderMaze(maze);
 
   start = {x: 0, y: 0};
   end = {x: maze.length - 1, y: maze.length - 1};
@@ -14,55 +39,71 @@ var solveMaze = function (maze) {
   visited = {};
   visitCoordinate(start);
 
-  findPath(start);
+  pathStack = [];
+  stackCoordinate(start);
+}
+
+// Wrapper function to solve maze
+var solveMaze = function () {
+  refreshMaze();
+  setInterval(findPath, 50);
   return maze;
 };
 
-// Look at your 4 options for traversal
-var findPath = function (pos) {
+// The algorithm will continue working until it either puts a new step onto the path or removes one from a dead end
+// Then, it takes a break for the given interval
+var findPath = function () {
+  if (mazeCompleted) {
+    refreshMaze();
+    mazeCompleted = false;
+    return;
+  }
+
+  if (pathStack.length == 0) {
+    return;
+  }
+
+  var posInfo = popCoordinate();
+  var pos = posInfo.pos;
+
   // BASE CASE --> we found the endpoint
   if (pos.x == end.x && pos.y == end.y) {
-    return true;
+    pathStack = []; // Wipe out pathStack - we're done
+    mazeCompleted = true;
+    return;
   }
-  var neighbors = findNeighbors(pos);
 
-  while (neighbors.length > 0) {
-    // Randomly pick from neighbors to randomize search
-    var index = Math.floor(Math.random()*neighbors.length);
-    var spot = neighbors[index];
+  var stillChecking = true;
+  while (stillChecking) {
+    if (posInfo.neighbors.length == 0) {
+      // No more neighbors means we have hit a dead end
+      updateCoordinate(pos, 1);
+      setColor(pos, 1);
+      stillChecking = false;
+    } else {
+      // Randomly pick from neighbors to randomize search
+      var index = Math.floor(Math.random()*posInfo.neighbors.length);
+      var spot = posInfo.neighbors[index];
 
-    if(explore(neighbors[index])) {
-      return true;
+      // Remove spot from the potential spots
+      posInfo.neighbors.splice(index, 1);
+
+      // If this position exists in the maze
+      // If this position is a wall
+      // If we haven't already been here
+      if (isValidSpot(spot, maze.length) && getCoordinate(spot) && !visited[coordinatesToString(spot)]) {
+
+        updateCoordinate(spot, 2);
+        setColor(spot, 2);
+        visitCoordinate(spot);
+
+        pushCoordinate(posInfo);
+
+        // Add latest position onto stack last
+        stackCoordinate(spot);
+
+        stillChecking = false;
+      }
     }
-
-    // Remove spot from the potential spots
-    neighbors.splice(index, 1);
   }
-  return false;
-};
-
-// Recurse down a specific path
-var explore = function (pos) {
-  // If this position does not exist in the maze, don't explore
-  if (!isValidSpot(pos, maze.length)) {
-    return false;
-  }
-
-  // If this position is a wall
-  if (!getCoordinate(pos)) {
-    return false;
-  }
-
-  // If we have already been here, no need to explore
-  if (visited[coordinatesToString(pos)]) {
-    return false;
-  }
-
-  updateCoordinate(pos, 2);
-  visitCoordinate(pos);
-  var foundPath = findPath(pos);
-  if (!foundPath) {
-    updateCoordinate(pos, 1);
-  }
-  return foundPath;
 };
