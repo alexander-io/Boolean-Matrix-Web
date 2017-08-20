@@ -17,8 +17,8 @@ let dimension = {
 let block_size = (two.width / 24);
 var maze, displayMaze;
 var WALL_COLOR = 'rgb(0,0,0)';
-var WALK_COLOR = 'rgb(65,105,225)';
-var PATH_COLOR = 'rgb(150, 30, 190)';
+var WALK_COLOR = '#87CEFA';
+var PATH_COLOR = '#fffc00'; // Snapchat yellow
 
 // Keep track of a velocity table
 var velocityTable = {};
@@ -73,8 +73,8 @@ let renderMaze = function (maze) {
     }
     displayMaze.push(displayRow);
   }
-  displayMaze[0][0].fill = 'rgb(0,255,0)';
-  displayMaze[maze.length - 1][maze.length - 1].fill = 'rgb(0,255,0)';
+  displayMaze[0][0].fill = '#a253e8';
+  displayMaze[maze.length - 1][maze.length - 1].fill = '#a253e8';
 };
 
 // Kick off the Amazing Maze
