@@ -14,14 +14,12 @@ var stackCoordinate = function (pos) {
 
 // Function to find neighbors of newly visited position, push onto stack
 var pushCoordinate = function (posInfo) {
-  pathStack.unshift(posInfo);
+  pathStack.push(posInfo);
 };
 
 // Function to pop top position off stack
 var popCoordinate = function () {
-  var posInfo = pathStack[0];
-  pathStack.splice(0, 1);
-  return posInfo;
+  return pathStack.pop();
 };
 
 // The algorithm will continue working until it either puts a new step onto the path or removes one from a dead end
